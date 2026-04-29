@@ -2,7 +2,15 @@
 
 A local browser extension that tracks your screen time and categorizes your activity in the browser.
 
-![TimeWise Dashboard Preview](https://raw.githubusercontent.com/shubhpsd/TimeWise/main/icons/icon128.png)
+<div align="center">
+  <img src="demo/Today%20View.png" alt="TimeWise Dashboard - Today View" />
+</div>
+<br/>
+<div align="center">
+  <img src="demo/This%20Month%20View.png" width="49%" alt="TimeWise Dashboard - Month View" />
+  <img src="demo/Popup%20View.png" width="49%" alt="TimeWise Popup View" />
+</div>
+<p align="center"><em>Demo screenshots showcasing the TimeWise dashboard views.</em></p>
 
 ## ✨ Features
 
