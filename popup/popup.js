@@ -80,8 +80,10 @@ async function loadData() {
 
     const { dayData, domainRules, channelRules, categories, currentDomain, currentChannel } = response;
 
-    // Total time
-    const totalMs = Object.values(dayData.domains).reduce((sum, ms) => sum + ms, 0);
+    // Total time (exclude corrupted 'null' entries)
+    const totalMs = Object.entries(dayData.domains)
+      .filter(([domain]) => domain && domain !== 'null')
+      .reduce((sum, [, ms]) => sum + ms, 0);
     document.getElementById('totalTime').textContent = formatTimeLong(totalMs);
 
     // Current site
@@ -128,6 +130,7 @@ async function loadData() {
     categories.forEach(cat => { categoryTotals[cat.id] = 0; });
 
     Object.entries(dayData.domains).forEach(([domain, ms]) => {
+      if (domain === 'null' || !domain) return;
       const catId = domainRules[domain] || 'miscellaneous';
       if (categoryTotals[catId] !== undefined) {
         categoryTotals[catId] += ms;
@@ -250,8 +253,9 @@ function renderChart(categoryTotals, categories) {
 function renderDomainList(domains, domainRules, categories) {
   const container = document.getElementById('domainList');
 
-  // Sort by time spent, top 5
+  // Sort by time spent, top 5 — filter out corrupted 'null' entries
   const sorted = Object.entries(domains)
+    .filter(([domain]) => domain && domain !== 'null')
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
 

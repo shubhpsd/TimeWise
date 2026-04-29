@@ -52,7 +52,9 @@ function getDomain(url) {
   try {
     const u = new URL(url);
     if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
-    return u.hostname.replace(/^www\./, '');
+    const hostname = u.hostname.replace(/^www\./, '');
+    if (hostname === 'null' || hostname === '') return null;
+    return hostname;
   } catch {
     return null;
   }
@@ -80,6 +82,11 @@ async function getDayData(dateKey) {
 async function saveTimeSpent() {
   if (!isTracking || isPaused || !startTime || !currentDomain) return;
 
+  // CRITICAL: Snapshot state BEFORE any await, so concurrent stopTracking()
+  // can't set currentDomain to null while we're mid-save.
+  const domain = currentDomain;
+  const channel = currentYoutubeChannel;
+
   const now = Date.now();
   const duration = now - startTime;
   startTime = now;
@@ -87,34 +94,37 @@ async function saveTimeSpent() {
   // Ignore very short durations (< 1 second) or impossibly long ones (> 2 hours without event)
   if (duration < 1000 || duration > 7200000) return;
 
+  // Double-check snapshot is valid
+  if (!domain) return;
+
   const dateKey = getDateKey();
   const dayData = await getDayData(dateKey);
 
   // Save domain time
-  if (!dayData.domains[currentDomain]) {
-    dayData.domains[currentDomain] = 0;
+  if (!dayData.domains[domain]) {
+    dayData.domains[domain] = 0;
   }
-  dayData.domains[currentDomain] += duration;
+  dayData.domains[domain] += duration;
 
   // Save YouTube channel time if applicable
-  if (currentDomain === 'youtube.com' && currentYoutubeChannel) {
-    if (!dayData.youtubeChannels[currentYoutubeChannel]) {
-      dayData.youtubeChannels[currentYoutubeChannel] = 0;
+  if (domain === 'youtube.com' && channel) {
+    if (!dayData.youtubeChannels[channel]) {
+      dayData.youtubeChannels[channel] = 0;
     }
-    dayData.youtubeChannels[currentYoutubeChannel] += duration;
+    dayData.youtubeChannels[channel] += duration;
 
     // Auto-assign new channels to miscellaneous
     const { channelRules = {} } = await chrome.storage.local.get('channelRules');
-    if (!channelRules[currentYoutubeChannel]) {
-      channelRules[currentYoutubeChannel] = 'miscellaneous';
+    if (!channelRules[channel]) {
+      channelRules[channel] = 'miscellaneous';
       await chrome.storage.local.set({ channelRules });
     }
   }
 
   // Auto-assign new domains to miscellaneous
   const { domainRules = {} } = await chrome.storage.local.get('domainRules');
-  if (!domainRules[currentDomain]) {
-    domainRules[currentDomain] = 'miscellaneous';
+  if (!domainRules[domain]) {
+    domainRules[domain] = 'miscellaneous';
     await chrome.storage.local.set({ domainRules });
   }
 
@@ -155,6 +165,19 @@ function resumeTracking() {
 
 // Tab activated (switched to)
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  // Ignore tab activations in non-normal windows (PiP, DevTools, popups)
+  try {
+    const win = await chrome.windows.get(activeInfo.windowId);
+    if (win.type !== 'normal') return;
+    if (!win.focused) return; // Ignore background window tab switches
+  } catch { return; }
+
+  // Ignore dummy/blank tabs
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    if (tab.url && (tab.url.includes('://null') || tab.url.includes('about:blank'))) return;
+  } catch { return; }
+
   const p = saveTimeSpent();
   currentTabId = activeInfo.tabId;
   
@@ -224,14 +247,29 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 // Window focus changed (user left Chrome or switched windows)
 chrome.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === chrome.windows.WINDOW_ID_NONE) {
-    // User left Chrome
+    // User left Chrome entirely (another app, or PiP grabbed focus)
     await saveTimeSpent();
     isPaused = true;
   } else {
-    // User came back to Chrome
     try {
+      const win = await chrome.windows.get(windowId);
+
+      if (win.type !== 'normal') {
+        // PiP, DevTools, or popup window got focus — DON'T interrupt tracking.
+        // If we were paused (from WINDOW_ID_NONE firing first), resume on the same domain.
+        if (isPaused) resumeTracking();
+        return;
+      }
+
+      // Normal browser window got focus
       const [tab] = await chrome.tabs.query({ active: true, windowId });
       if (tab) {
+        if (tab.url && (tab.url.includes('://null') || tab.url.includes('about:blank'))) {
+          // Dummy tab — resume existing tracking
+          if (isPaused) resumeTracking();
+          return;
+        }
+
         if (tab.id === currentTabId) {
           // Same tab, just resume
           resumeTracking();
@@ -252,8 +290,8 @@ chrome.windows.onFocusChanged.addListener(async (windowId) => {
         currentTabId = null;
       }
     } catch {
-      // Window might be devtools or special window
-      stopTracking();
+      // Window might be devtools or special window — don't interrupt
+      if (isPaused) resumeTracking();
     }
   }
 });
@@ -264,11 +302,11 @@ chrome.idle.onStateChanged.addListener(async (state) => {
     // Screen locked — always pause
     pauseTracking();
   } else if (state === 'idle') {
-    // No input — but check if active tab is playing audio
+    // No input — but check if ANY tab is playing audio
     try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab && tab.audible) {
-        // Audio playing (lecture, video, music) — keep counting
+      const tabs = await chrome.tabs.query({ audible: true });
+      if (tabs.length > 0) {
+        // Audio playing (lecture, video, music in background/PiP) — keep counting
         return;
       }
     } catch {}
@@ -295,6 +333,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'GET_TODAY_DATA') {
     (async () => {
+      // Snapshot state before any await to prevent race conditions
+      const domain = currentDomain;
+      const channel = currentYoutubeChannel;
+
       const dateKey = getDateKey();
       const dayData = await getDayData(dateKey);
       const { domainRules = {} } = await chrome.storage.local.get('domainRules');
@@ -302,15 +344,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const { categories = DEFAULT_CATEGORIES } = await chrome.storage.local.get('categories');
 
       // Flush current tracking before returning data
-      if (isTracking && !isPaused && startTime && currentDomain) {
+      if (isTracking && !isPaused && startTime && domain) {
         const now = Date.now();
         const duration = now - startTime;
         if (duration >= 1000 && duration <= 7200000) {
-          if (!dayData.domains[currentDomain]) dayData.domains[currentDomain] = 0;
-          dayData.domains[currentDomain] += duration;
-          if (currentDomain === 'youtube.com' && currentYoutubeChannel) {
-            if (!dayData.youtubeChannels[currentYoutubeChannel]) dayData.youtubeChannels[currentYoutubeChannel] = 0;
-            dayData.youtubeChannels[currentYoutubeChannel] += duration;
+          if (!dayData.domains[domain]) dayData.domains[domain] = 0;
+          dayData.domains[domain] += duration;
+          if (domain === 'youtube.com' && channel) {
+            if (!dayData.youtubeChannels[channel]) dayData.youtubeChannels[channel] = 0;
+            dayData.youtubeChannels[channel] += duration;
           }
         }
       }
@@ -320,8 +362,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         domainRules,
         channelRules,
         categories,
-        currentDomain,
-        currentChannel: currentYoutubeChannel
+        currentDomain: domain,
+        currentChannel: channel
       });
     })();
     return true; // Keep message channel open for async response

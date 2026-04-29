@@ -219,6 +219,7 @@ function renderDashboard(response) {
     dailyData[date] = { total: 0, categories: {} };
 
     Object.entries(dayData.domains || {}).forEach(([domain, ms]) => {
+      if (domain === 'null' || !domain) return; // Ignore corrupted database entries
       totalMs += ms;
       domainTotals[domain] = (domainTotals[domain] || 0) + ms;
       dailyData[date].total += ms;

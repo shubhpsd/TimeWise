@@ -43,7 +43,10 @@
     // Fallback: try meta tag
     const metaEl = document.querySelector('span[itemprop="author"] link[itemprop="name"]');
     if (metaEl) {
-      return metaEl.getAttribute('content');
+      const content = metaEl.getAttribute('content');
+      if (content && content !== 'null' && content !== 'undefined') {
+        return content.trim();
+      }
     }
 
     return null;
@@ -51,6 +54,10 @@
 
   // Send channel name to service worker
   function sendChannelName(channelName) {
+    if (channelName === 'null' || channelName === 'undefined') {
+      channelName = null;
+    }
+    
     if (hasSentInitial && channelName === lastChannel) return;
     hasSentInitial = true;
     lastChannel = channelName;
