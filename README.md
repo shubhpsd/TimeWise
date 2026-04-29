@@ -1,18 +1,18 @@
 # ⏱️ TimeWise
 
-**TimeWise** is a privacy-first, purely local browser extension that intelligently tracks your screen time and categorizes your productivity—without ever sending a single byte of your data to external servers.
+A local browser extension that tracks your screen time and categorizes your activity in the browser.
 
 ![TimeWise Dashboard Preview](https://raw.githubusercontent.com/shubhpsd/TimeWise/main/icons/icon128.png)
 
 ## ✨ Features
 
-* **🔒 100% Privacy-First:** All analytics, browsing history, and tracking data are stored locally on your machine using Chrome's native storage. No tracking APIs, no external servers.
-* **🧠 Smart Tracking Engine:** Intelligently pauses tracking when you switch to internal pages (like `chrome://` or the New Tab page) or when your computer goes idle.
-* **🎥 Advanced YouTube Analytics:** 
-  * Tracks the *exact channel* you are watching, allowing you to categorize different creators (e.g., categorizing educational channels as "Study" and entertainment as "Wasted").
-  * **Shorts Sinkhole:** Automatically groups all YouTube Shorts into a single pseudo-channel so you can easily isolate and track endless scrolling time.
-* **📊 Beautiful Classic Dashboard:** A comprehensive, locally rendered dashboard featuring donut charts, daily trend graphs, and detailed domain-by-domain breakdowns.
-* **🎨 Dynamic Themes:** Built-in support for multiple modern color schemes (including Everforest, Nord, Dracula, and more).
+* **Smart Tracking:** Intelligently pauses tracking when you switch to internal pages (like `chrome://` or the New Tab page) or when your computer goes idle.
+* **Advanced YouTube Tracking:** 
+  * Tracks the *channel* you are watching, allowing you to categorize different creators (e.g., categorizing educational channels as "Study" and entertainment as "Wasted").
+  * **Shorts:** Automatically groups all YouTube Shorts into a single pseudo-channel so you can easily isolate and track endless scrolling time.
+* **Privacy Friendly:** All analytics, browsing history, and tracking data are stored locally on your machine using Chrome's native storage. No tracking APIs etc.
+* **Beautiful Dashboard:** A locally rendered dashboard featuring donut charts, daily trend graphs, and detailed domain-by-domain breakdowns.
+* **Dynamic Themes:** Built-in support for multiple color schemes (including Everforest, Nord, Dracula, and more).
 
 ## 🚀 Installation
 
@@ -31,12 +31,12 @@ Since TimeWise is currently not on the Chrome Web Store, you can easily install 
 * **[Chart.js](https://www.chartjs.org/)** - For the beautiful, interactive dashboard analytics.
 
 ## 🔮 Future Roadmap
-- [ ] Weekly/Monthly comparative analytics.
+- [ ] Weekly/Monthly comparative analytics like in Apple's Screen Time app.
 - [ ] Export data to CSV functionality.
 - [ ] Companion native macOS application for system-wide app tracking (integrating with Chrome data via Native Messaging).
 
 ## 🤝 Contributing
-Feel free to open issues or submit pull requests if you have ideas for new features or improvements!
+Please open issues or submit pull requests if you have ideas for new features or changes/improvements.
 
 ---
 *Built to help you take back control of your time.*
