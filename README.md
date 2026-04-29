@@ -3,11 +3,11 @@
 A local browser extension that tracks your screen time and categorizes your activity in the browser.
 
 <div align="center">
-  <img src="demo/Popup_View.png" width="49%" alt="TimeWise Popup View" />
+  <img src="demo/Popup_View.png" alt="TimeWise Popup View" />
 </div>
 <br/>
 <div align="center">
-  <img src="demo/Today_View.png" alt="TimeWise Dashboard - Today View" />
+  <img src="demo/Today_View.png" width="49%" alt="TimeWise Dashboard - Today View" />
   <img src="demo/This_Month_View.png" width="49%" alt="TimeWise Dashboard - Month View" />
 </div>
 <p align="center"><em>Demo screenshots showcasing the TimeWise dashboard views.</em></p>
