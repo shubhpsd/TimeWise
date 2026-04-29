@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeWise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container" id="popup">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="logo">
+        <span class="logo-icon">⏱</span>
+        <span class="logo-text">TimeWise</span>
+      </div>
+      <button id="openDashboard" class="btn-dashboard" title="Open Dashboard">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Total Time -->
+    <div class="total-time-card">
+      <div class="total-label">Today's Screen Time</div>
+      <div class="total-value" id="totalTime">0h 0m</div>
+    </div>
+
+    <!-- Mini Donut Chart -->
+    <div class="chart-card">
+      <canvas id="categoryChart" width="200" height="200"></canvas>
+      <div class="chart-legend" id="chartLegend"></div>
+    </div>
+
+    <!-- Current Site -->
+    <div class="current-site-card" id="currentSiteCard">
+      <div class="current-site-header">
+        <span class="current-label">Currently on</span>
+      </div>
+      <div class="current-site-info">
+        <span class="current-domain" id="currentDomain">—</span>
+        <span class="current-channel" id="currentChannel"></span>
+      </div>
+      <div class="current-site-category">
+        <label for="currentCategorySelect" class="sr-only">Domain Category</label>
+        <select id="currentCategorySelect" class="category-select">
+          <option value="">Select category...</option>
+        </select>
+      </div>
+      <div id="channelSection" style="display: none; margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+        <div class="current-channel" id="currentChannel"></div>
+        <div class="current-site-category" style="margin-top: 4px;">
+          <label for="channelCategorySelect" class="sr-only">Channel Category</label>
+          <select id="channelCategorySelect" class="category-select">
+            <option value="">Channel category...</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Domains -->
+    <div class="top-domains-card">
+      <h3 class="section-title">Top Sites Today</h3>
+      <div class="domain-list" id="domainList">
+        <div class="empty-state">No browsing data yet</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <select id="themeSelect" class="theme-select" title="Change theme">
+      </select>
+    </footer>
+  </div>
+
+  <script src="../themes.js"></script>
+  <script src="../libs/chart.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
