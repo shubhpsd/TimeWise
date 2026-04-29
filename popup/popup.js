@@ -37,7 +37,7 @@ function populateThemeSelect() {
 
   // Set current theme
   chrome.storage.sync.get('theme', (result) => {
-    select.value = result.theme || 'everforest-dark-hard';
+    select.value = result.theme || 'gruvbox-dark-soft';
   });
 }
 

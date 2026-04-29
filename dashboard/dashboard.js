@@ -72,7 +72,7 @@ function populateThemeSelect() {
   });
 
   chrome.storage.sync.get('theme', (result) => {
-    select.value = result.theme || 'everforest-dark-hard';
+    select.value = result.theme || 'gruvbox-dark-soft';
   });
 }
 
@@ -621,6 +621,7 @@ async function loadSettingsData() {
 
   // Data retention
   document.getElementById('retentionSelect').value = settings.dataRetention || 'forever';
+  document.getElementById('settingsTheme').value = settings.theme || 'gruvbox-dark-soft';
 }
 
 function renderCategoryList(categories) {

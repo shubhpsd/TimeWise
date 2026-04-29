@@ -12,7 +12,7 @@ const DEFAULT_CATEGORIES = [
 const DEFAULT_SETTINGS = {
   idleTimeoutMinutes: 2,
   dataRetention: 'forever',
-  theme: 'everforest-dark-hard'
+  theme: 'gruvbox-dark-soft'
 };
 
 // =============== STATE ===============

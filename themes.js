@@ -431,7 +431,7 @@ const THEMES = {
   }
 };
 
-const DEFAULT_THEME = 'everforest-dark-hard';
+const DEFAULT_THEME = 'gruvbox-dark-soft';
 
 // Apply a theme to the document
 function applyTheme(themeId) {
